@@ -1,10 +1,9 @@
 # AGENTS.md
 
-## Project Overview
+## プロジェクト概要
 
-This project develops Adobe ExtendScript extensions for use in Adobe After Effects.
+このプロジェクトは、Adobe After Effects で使用する Adobe ExtendScript の拡張機能を開発するためのプロジェクトです。
 
-## Development Rules
+## 開発ルール
 
-Detailed rules will be defined as development progresses.
-
+細かい開発ルールは、開発を進めながら順次制定していきます。
