@@ -300,7 +300,10 @@
 
     layer.name = layerName;
     layer.property("Source Text").setValue(textDocument);
-    layer.property("Transform").property("Position").setValue([x, y]);
+    layer.property("Transform").property("Position").setValue([
+      x + width / 2,
+      y + height / 2
+    ]);
 
     return layer;
   }
