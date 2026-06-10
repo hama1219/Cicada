@@ -253,7 +253,7 @@ ORIGINAL_TITLE_FONT_SIZE = 40;
 
 ## テキスト切り替え演出
 
-- 楽曲切り替わり時、前曲テキストと次曲テキストを `1秒` 重ねる。
+- 楽曲切り替わり時、前曲テキストと次曲テキストを `0.5秒` 重ねる。
 - 不透明度でクロスフェードする。
 - 前曲: `100% → 0%`
 - 次曲: `0% → 100%`
@@ -262,9 +262,11 @@ ORIGINAL_TITLE_FONT_SIZE = 40;
 ```javascript
 TEXT_FADE_DURATION = 1;
 AUDIO_FADE_DURATION = 3;
+TEXT_OVERLAP_DURATION = 0.5;
 ```
 
 各テキストレイヤーの表示タイミングは、対応する音声レイヤーのタイムライン配置結果を基準にする。
+2曲目以降のテキスト開始は `audioTimelineStart + AUDIO_FADE_DURATION - TEXT_OVERLAP_DURATION` とする。
 
 ```text
 textStartTime = audioTimelineStart

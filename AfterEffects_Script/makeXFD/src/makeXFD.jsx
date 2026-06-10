@@ -12,6 +12,7 @@
 
   var AUDIO_FADE_DURATION = 3;
   var TEXT_FADE_DURATION = 1;
+  var TEXT_OVERLAP_DURATION = 0.5;
   var AUDIO_NORMAL_LEVEL = [0, 0];
   var AUDIO_SILENT_LEVEL = [-48, -48];
 
@@ -249,7 +250,7 @@
   }
 
   function addTrackTextLayers(comp, track) {
-    var textStartTime = track.placement.timelineStart;
+    var textStartTime = calculateTextStartTime(track);
     var textEndTime = track.timelineEnd;
     var titleLayer = createBoxTextLayer(
       comp,
@@ -274,6 +275,17 @@
 
     configureTextTiming(titleLayer, textStartTime, textEndTime);
     configureTextTiming(originalLayer, textStartTime, textEndTime);
+  }
+
+  function calculateTextStartTime(track) {
+    if (track.trackNumber === 1) {
+      return track.placement.timelineStart;
+    }
+
+    return Math.min(
+      track.placement.timelineStart + AUDIO_FADE_DURATION - TEXT_OVERLAP_DURATION,
+      track.timelineEnd
+    );
   }
 
   function createBoxTextLayer(comp, layerName, text, x, y, width, height, fontSize) {
@@ -419,4 +431,3 @@
     alert("makeXFD error:\n" + error.message);
   }
 }());
-
