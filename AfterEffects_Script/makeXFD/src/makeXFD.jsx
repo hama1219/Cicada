@@ -32,7 +32,7 @@
   function main() {
     var csvFile = File.openDialog("Select makeXFD CSV", "*.csv");
     if (!csvFile) {
-      throw new Error("CSV was not selected.");
+      throw new Error("CSVファイルが選択されていません");
     }
 
     app.beginUndoGroup("makeXFD");
@@ -44,7 +44,7 @@
       var comp = buildComposition(prepared);
       comp.openInViewer();
       app.endUndoGroup();
-      alert("makeXFD composition created: " + comp.name);
+      alert("XFD生成完了。コンポジション名: " + comp.name);
     } catch (error) {
       app.endUndoGroup();
       throw error;
@@ -53,12 +53,12 @@
 
   function readUtf8Text(file) {
     if (!file.exists) {
-      throw new Error("CSV file does not exist: " + file.fsName);
+      throw new Error("csvファイルが存在していません。: " + file.fsName);
     }
 
     File.encoding = "UTF-8";
     if (!file.open("r")) {
-      throw new Error("Could not read CSV file: " + file.fsName);
+      throw new Error("csvファイルが読み込めません " + file.fsName);
     }
 
     var text = file.read();
@@ -84,16 +84,16 @@
     }
 
     if (rows.length < 2) {
-      throw new Error("CSV must contain one CD row and at least one track row.");
+      throw new Error("csvの行数が足りません（csvは少なくとも、CDタイトル行とトラック行が必要です。）");
     }
 
     if (rows[0].length < 6) {
-      throw new Error("CSV CD row has too few columns.");
+      throw new Error("CDタイトル行の記載項目数が不足しています。各項目が記載されているか確認してください");
     }
 
     for (i = 1; i < rows.length; i++) {
       if (rows[i].length < 5) {
-        throw new Error("CSV track row " + (i + 1) + " has too few columns.");
+        throw new Error( (i + 1) + " 曲目の記載項目が不足しています。各項目が記載されているか確認してください。");
       }
     }
 
