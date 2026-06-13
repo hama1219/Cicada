@@ -6,7 +6,7 @@
  */
 (function () {
     var SCRIPT_NAME = "make_AE_gsmovie";
-    var COMP_NAME = "gs_templete";
+    var COMP_NAME = "gs_template";
     var SPECTRUM_LAYER_NAME = "Spectrum";
     var IMAGE_LAYER_NAME = "Background_Image";
     var AUDIO_LAYER_NAME = "Audio_Source";

@@ -85,7 +85,7 @@ gs_002,C:/assets/images/bg02.png,C:/assets/audio/music02.wav,Lo-fi,Arrange,別�
 
 ### 対象コンポジション
 
-- 対象コンポジション名は `gs_templete` 固定
+- 対象コンポジション名は `gs_template` 固定
 - アクティブコンポジションには依存しない
 - CSVでコンポジション名は指定しない
 
@@ -112,12 +112,12 @@ gs_002,C:/assets/images/bg02.png,C:/assets/audio/music02.wav,Lo-fi,Arrange,別�
 CSVの各行について、以下を実行する。
 
 1. テンプレート `.aep` を開き直す。
-2. `gs_templete` を取得する。
+2. `gs_template` を取得する。
 3. `imagePath` の画像を読み込む。
 4. `audioPath` の音声を読み込む。
 5. 音声素材の `duration` を取得する。
-6. `gs_templete.duration` を音声尺に設定する。
-7. `gs_templete` 内の全レイヤーの `outPoint` を音声尺に設定する。
+6. `gs_template.duration` を音声尺に設定する。
+7. `gs_template` 内の全レイヤーの `outPoint` を音声尺に設定する。
 8. 画像レイヤー `Background_Image` を追加し、`Spectrum` の1個下へ移動する。
 9. 音声レイヤー `Audio_Source` を追加し、`Spectrum` の1個上へ移動する。
 10. `Category_Genre`、`Original_Arrange`、`Title` の Source Text をCSV値で差し替える。
@@ -131,7 +131,7 @@ CSVの各行について、以下を実行する。
 
 ## 画像レイヤー仕様
 
-- `imagePath` の画像を読み込み、`gs_templete` に新規追加する。
+- `imagePath` の画像を読み込み、`gs_template` に新規追加する。
 - 既存画像レイヤーの差し替えは行わない。
 - レイヤー名は `Background_Image` とする。
 - `Spectrum` の1個下に配置する。
@@ -154,7 +154,7 @@ imageLayer.property("Scale").setValue([scale, scale]);
 
 ## 音声レイヤー仕様
 
-- `audioPath` の音声を読み込み、`gs_templete` に新規追加する。
+- `audioPath` の音声を読み込み、`gs_template` に新規追加する。
 - レイヤー名は `Audio_Source` とする。
 - `Spectrum` の1個上に配置する。
 - `startTime = 0`、`inPoint = 0`、`outPoint = 音声尺` とする。
@@ -186,8 +186,8 @@ imageLayer.property("Scale").setValue([scale, scale]);
 
 ## 尺調整仕様
 
-- `gs_templete.duration` は音声素材の `duration` に合わせる。
-- `gs_templete` 内の全レイヤーの `outPoint` を音声尺に設定する。
+- `gs_template.duration` は音声素材の `duration` に合わせる。
+- `gs_template` 内の全レイヤーの `outPoint` を音声尺に設定する。
 - 既存キーフレームやアニメーションは変更しない。
 - 追加する画像・音声レイヤーも `inPoint = 0`、`outPoint = 音声尺` とする。
 
@@ -265,7 +265,7 @@ gs_001_002.aep
 - サニタイズ後の `outputName` が空
 - 画像または音声ファイルが存在しない
 - 画像または音声の読み込み失敗
-- `gs_templete` が存在しない、またはコンポジションではない
+- `gs_template` が存在しない、またはコンポジションではない
 - `Spectrum` が存在しない
 - 差し替え対象テキストレイヤーが存在しない、またはテキストレイヤーではない
 - Audio Spectrum エフェクトまたは `Audio Layer` プロパティが見つからない
