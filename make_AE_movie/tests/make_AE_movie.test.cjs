@@ -110,7 +110,7 @@ for (const settings of [{}, { english: true, width: 2400, height: 800 }, { par: 
         [300, 1500, 6000, 128, 8, [4, 1076], [1916, 1076], [1, 1, 1, 1], [1, 1, 1, 1]]);
     assert.deepEqual([1, 2, 3].map(i => s.comp.layer(i).name), ['Audio_Source', 'Spectrum', 'Background_Image']);
     const spectrumTransform = s.comp.layer(2).transforms;
-    assert.deepEqual(Array.from(spectrumTransform['ADBE Position'].value), [960, 480]);
+    assert.deepEqual(Array.from(spectrumTransform['ADBE Position'].value), [960, 540]);
     assert.equal(spectrumTransform['ADBE Opacity'].value, 50);
     assert.equal(s.comp.layer(1).outPoint, 12.5);
     for (let i = 2; i <= 3; i++) assert.equal(s.comp.layer(i).outPoint, 13);
