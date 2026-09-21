@@ -8,6 +8,13 @@
     var IMAGE_LAYER_NAME = "Background_Image";
     var AUDIO_LAYER_NAME = "Audio_Source";
     var TEXT_NAMES = ["Category_Genre", "Original_Arrange", "Title"];
+    var COLOR_OPTIONS = [
+        ["Rock", "#FF0000"], ["HR/HM", "#FF9900"],
+        ["EDM", "#FFFF00"], ["Electronic", "#4A86E8"],
+        ["Ethnic", "#00FF00"], ["Acoustic", "#00FFFF"],
+        ["Jazz", "#0000FE"], ["Orchestra", "#9900FF"],
+        ["Pops", "#FC00FC"], ["再翻訳", "#980000"]
+    ];
     var logLines = [];
 
     function main() {
@@ -29,6 +36,7 @@
         logLines.push("音声: " + audioFile.fsName);
         logLines.push("画像: " + imageFile.fsName);
         logLines.push("出力名: " + values.outputName);
+        logLines.push("カテゴリ色: " + values.colorName + " " + values.colorHex);
         try {
             if (!templateFile.exists || !audioFile.exists || !imageFile.exists) {
                 throw new Error("選択したファイルが存在しません。");
@@ -48,6 +56,7 @@
             for (var t = 0; t < TEXT_NAMES.length; t++) {
                 setTextLayerValue(comp, TEXT_NAMES[t], values[TEXT_NAMES[t]]);
             }
+            setCategoryColor(comp, values.colorHex);
             var imageItem = importFootage(imageFile.fsName, "画像");
             if (!imageItem.hasVideo || !imageItem.mainSource.isStill || imageItem.width <= 0 || imageItem.height <= 0) {
                 throw new Error("背景には静止画像を選択してください。");
@@ -95,13 +104,32 @@
         dialog.alignChildren = ["fill", "top"];
         dialog.add("statictext", undefined, "テンプレートへ反映するテキストを入力してください。");
         var fields = {};
-        var names = ["outputName", "Category_Genre", "Original_Arrange", "Title"];
-        var labels = ["保存ファイル名（拡張子不要）", "カテゴリ・ジャンル（Category_Genre）", "原曲・アレンジ（Original_Arrange）", "タイトル（Title）"];
+        var names = ["outputName", "Genre", "Original_Arrange", "Title"];
+        var labels = ["保存ファイル名（拡張子不要）", "Genre", "原曲・アレンジ（Original_Arrange）", "タイトル（Title）"];
         for (var i = 0; i < names.length; i++) {
             dialog.add("statictext", undefined, labels[i]);
             fields[names[i]] = dialog.add("edittext", undefined, i === 0 ? defaultName : "", {multiline: i > 0, wantReturn: i > 0});
             fields[names[i]].preferredSize = [460, i === 0 ? 26 : 64];
         }
+        var colorPanel = dialog.add("panel", undefined, "Category（カテゴリ名・色）");
+        colorPanel.orientation = "row";
+        colorPanel.alignChildren = ["left", "top"];
+        var colorButtons = [];
+        for (var c = 0; c < COLOR_OPTIONS.length; c++) {
+            if (c % 5 === 0) {
+                var column = colorPanel.add("group");
+                column.orientation = "column";
+                column.alignChildren = ["left", "top"];
+            }
+            var radio = column.add("radiobutton", undefined, COLOR_OPTIONS[c][0] + "  " + COLOR_OPTIONS[c][1]);
+            colorButtons.push(radio);
+            radio.onClick = function () {
+                for (var r = 0; r < colorButtons.length; r++) {
+                    colorButtons[r].value = colorButtons[r] === this;
+                }
+            };
+        }
+        colorButtons[0].value = true;
         var buttons = dialog.add("group");
         buttons.alignment = "right";
         var ok = buttons.add("button", undefined, "生成", {name: "ok"});
@@ -121,10 +149,72 @@
                 alert("有効な保存ファイル名を入力してください。");
                 return;
             }
+            input.Original_Arrange = "Original：" + input.Original_Arrange;
+            for (var c = 0; c < colorButtons.length; c++) {
+                if (colorButtons[c].value) {
+                    input.colorName = COLOR_OPTIONS[c][0];
+                    input.colorHex = COLOR_OPTIONS[c][1];
+                    break;
+                }
+            }
+            input.Category_Genre = "Category：" + input.colorName + "　Genre：" + input.Genre;
             result = input;
             dialog.close(1);
         };
         return dialog.show() === 1 ? result : null;
+    }
+
+    function setCategoryColor(comp, hex) {
+        var layer = findLayerByName(comp, "Category_color");
+        if (!layer) { throw new Error("Category_color レイヤーが存在しません。"); }
+        var contents = layer.property("ADBE Root Vectors Group");
+        var fills = [];
+        collectRectangleFills(contents, fills);
+        if (fills.length === 0) {
+            throw new Error("Category_color の長方形と同じグループ内に単色の塗りが必要です。");
+        }
+        for (var i = 0; i < fills.length; i++) {
+            if (fills[i].expressionEnabled) {
+                throw new Error("Category_color の塗りのカラーの式を無効にしてください。");
+            }
+        }
+        var color = [parseInt(hex.substr(1, 2), 16) / 255,
+            parseInt(hex.substr(3, 2), 16) / 255, parseInt(hex.substr(5, 2), 16) / 255, 1];
+        var locked = layer.locked;
+        layer.locked = false;
+        try {
+            for (var f = 0; f < fills.length; f++) {
+                if (fills[f].numKeys > 0) {
+                    for (var k = 1; k <= fills[f].numKeys; k++) {
+                        fills[f].setValueAtKey(k, color);
+                    }
+                } else {
+                    fills[f].setValue(color);
+                }
+            }
+        } finally { layer.locked = locked; }
+    }
+
+    // Match names allow renamed groups and Japanese/English AE installations.
+    function collectRectangleFills(contents, fills) {
+        if (!contents) { return; }
+        var hasRectangle = false;
+        for (var i = 1; i <= contents.numProperties; i++) {
+            var item = contents.property(i);
+            if (item.matchName === "ADBE Vector Shape - Rect") { hasRectangle = true; }
+            if (item.matchName === "ADBE Vector Group") {
+                collectRectangleFills(item.property("ADBE Vectors Group"), fills);
+            }
+        }
+        if (hasRectangle) {
+            for (var j = 1; j <= contents.numProperties; j++) {
+                var fill = contents.property(j);
+                if (fill.matchName === "ADBE Vector Graphic - Fill") {
+                    var color = fill.property("ADBE Vector Fill Color");
+                    if (color) { fills.push(color); }
+                }
+            }
+        }
     }
 
     function sanitizeFileBaseName(name) {
