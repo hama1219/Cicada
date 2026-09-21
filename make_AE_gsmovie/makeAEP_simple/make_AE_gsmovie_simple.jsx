@@ -65,10 +65,7 @@
             if (!audioItem.hasAudio || !isFinite(audioItem.duration) || audioItem.duration <= 0) {
                 throw new Error("音声を含む有効な素材を選択してください。");
             }
-            var duration = audioItem.duration;
-            comp.duration = duration;
-            comp.workAreaStart = 0;
-            comp.workAreaDuration = duration;
+            var duration = fitCompToAudio(comp, audioItem.duration);
             setAllLayerOutPoints(comp, duration);
             addImageLayer(comp, imageItem, spectrum, duration);
             var audioLayer = addAudioLayer(comp, audioItem, spectrum, duration);
@@ -350,6 +347,24 @@
         } catch (err) {
             throw new Error("Audio_Source の参照設定に失敗しました: " + getErrorMessage(err));
         }
+        var settings = [
+            [["Start Frequency", "開始周波数"], 100],
+            [["End Frequency", "終了周波数"], 2000],
+            [["Maximum Height", "最大高さ"], 4500],
+            [["Thickness", "太さ"], 10],
+            [["Frequency Bands", "周波数バンド"], 96]
+        ];
+        for (var s = 0; s < settings.length; s++) {
+            var names = settings[s][0];
+            var prop = findPropertyByNames(effect, names, []);
+            if (!prop) {
+                throw new Error("Audio Spectrum の " + names[1] + " プロパティが見つかりません。");
+            }
+            // These five settings are fixed throughout the generated composition.
+            if (prop.expressionEnabled) { prop.expressionEnabled = false; }
+            while (prop.numKeys > 0) { prop.removeKey(prop.numKeys); }
+            prop.setValue(settings[s][1]);
+        }
     }
 
     function findAudioSpectrumEffect(layer) {
@@ -424,6 +439,35 @@
             }
         }
         return layer.property("Source Text");
+    }
+
+    function fitCompToAudio(comp, audioDuration) {
+        var frameDuration = comp.frameDuration;
+        if (!isFinite(frameDuration) || frameDuration <= 0) {
+            throw new Error("コンポジションのフレーム長が無効です。");
+        }
+        // Round fractional seconds up first (e.g. 241.29 seconds -> 242 seconds).
+        var roundedDuration = Math.ceil(audioDuration);
+        // Fractional frame rates may not have a frame boundary at an integer second.
+        var frameCount = Math.max(1, Math.ceil(roundedDuration / frameDuration - 0.0000001));
+        // Reset the old work area before shortening a template composition.
+        comp.workAreaStart = 0;
+        comp.workAreaDuration = frameDuration;
+        comp.duration = frameCount * frameDuration;
+        var duration = comp.duration;
+        if (duration + frameDuration * 0.0000001 < roundedDuration) {
+            comp.duration = (frameCount + 1) * frameDuration;
+            duration = comp.duration;
+        }
+        if (duration + frameDuration * 0.0000001 < roundedDuration) {
+            throw new Error("秒単位に切り上げたコンポジション尺を設定できません。");
+        }
+        comp.workAreaStart = 0;
+        // Use the actual duration accepted by AE, not the unrounded audio duration.
+        comp.workAreaDuration = duration - comp.workAreaStart;
+        logLines.push("尺調整: 音声=" + audioDuration + "秒 / 秒単位切り上げ=" + roundedDuration + "秒 / コンポジション=" + duration +
+            "秒 / フレーム長=" + frameDuration + "秒 / ワークエリア=" + comp.workAreaDuration + "秒");
+        return duration;
     }
 
     function setAllLayerOutPoints(comp, duration) {
