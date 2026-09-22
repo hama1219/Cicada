@@ -92,7 +92,7 @@ function run(options = {}) {
         beginUndoGroup() { state.undo++; }, endUndoGroup() { state.undo--; }
     };
     function ImportOptions(file) { this.file = file; this.canImportAs = () => true; }
-    vm.runInNewContext(source, { File, Folder, FootageItem, ImportOptions, ImportAsType: { FOOTAGE: 1 }, PropertyValueType: { LAYER_INDEX: 1 }, CloseOptions: { PROMPT_TO_SAVE_CHANGES: 1 }, app, alert: text => state.alerts.push(text) });
+    vm.runInNewContext(source, { $: { fileName: '/scripts/make_AE_movie.jsx' }, File, Folder, FootageItem, ImportOptions, ImportAsType: { FOOTAGE: 1 }, PropertyValueType: { LAYER_INDEX: 1 }, CloseOptions: { PROMPT_TO_SAVE_CHANGES: 1 }, app, alert: text => state.alerts.push(text) });
     assert.equal(state.undo, 0);
     return state;
 }
@@ -100,6 +100,8 @@ function run(options = {}) {
 for (const settings of [{}, { english: true, width: 2400, height: 800 }, { par: 2 }]) {
     const s = run(settings);
     assert.ok(s.saved);
+    assert.match(s.log, /スクリプト版: 2026-09-22\.1/);
+    assert.match(s.log, /実行スクリプト: \/scripts\/make_AE_movie\.jsx/);
     assert.equal(s.comp.width, 1920);
     assert.equal(s.comp.height, 1080);
     assert.equal(s.comp.frameRate, 30);
@@ -140,7 +142,7 @@ assert.match(logFailure.alerts[0], /ログ出力に失敗/);
 assert.equal(run({ name: 'CON.wav' }).saved, '/output/_CON.aep');
 assert.equal(run({ name: 'a:b.wav' }).saved, '/output/a_b.aep');
 assert.equal(run({ name: 'song.wav', existing: ['/output/song.aep', '/output/song_001.aep'] }).saved, '/output/song_002.aep');
-for (const [duration, expectedSeconds] of [[267.185555555556, 268], [0.001, 1], [12.5, 13], [12, 12], [12.00001, 13], [12.99999, 13], [10800, 10800]]) {
+for (const [duration, expectedSeconds] of [[259.12, 260], [267.185555555556, 268], [0.001, 1], [12.5, 13], [12, 12], [12.00001, 13], [12.99999, 13], [10800, 10800]]) {
     const s = run({ duration });
     assert.ok(s.saved, s.alerts[0]);
     assert.equal(s.comp.duration, expectedSeconds);

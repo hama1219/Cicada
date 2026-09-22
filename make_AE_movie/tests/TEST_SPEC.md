@@ -112,6 +112,7 @@ PASS: composition, spectrum, image fit, cancellation, failures, logging, filenam
 | 音声尺（秒） | コンポジション尺（秒） |
 |---|---|
 | 267.185555555556 | 268 |
+| 259.12 | 260 |
 | 0.001 | 1 |
 | 12.5 | 13 |
 | 12 | 12 |

@@ -4,8 +4,8 @@
     var SCRIPT_VERSION = "2026-09-22.1";
     var SCRIPT_PATH = (typeof $ !== "undefined" && $.fileName) ? File($.fileName).fsName : "取得できません";
     var COMP_NAME = "movie";
-    var WIDTH = 1920;
-    var HEIGHT = 1080;
+    var WIDTH = 1280;
+    var HEIGHT = 720;
     var FRAME_RATE = 30;
     var logLines = [];
 
