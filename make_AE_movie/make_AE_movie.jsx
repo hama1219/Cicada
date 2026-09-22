@@ -126,9 +126,9 @@
 
             configureSpectrum(spectrumLayer, audioLayer);
             var spectrumTransform = spectrumLayer.property("ADBE Transform Group");
-            spectrumTransform.property("ADBE Position").setValue([comp.width / 2, 540.0]);
+            spectrumTransform.property("ADBE Position").setValue([comp.width / 2, comp.height / 2]);
             spectrumTransform.property("ADBE Opacity").setValue(50);
-            logLines.push("Spectrumトランスフォーム: 位置=[" + (comp.width / 2) + ", 540.0] / 不透明度=50%");
+            logLines.push("Spectrumトランスフォーム: 位置=[" + (comp.width / 2) + ", " + (comp.height / 2) + "] / 不透明度=50%");
             for (var i = 1; i <= comp.numLayers; i++) {
                 var layer = comp.layer(i);
                 layer.startTime = 0;
